@@ -153,4 +153,6 @@ Refer to `supabase-schema.sql` for the full table definitions including:
 
 ---
 
+https://dcoe-iisc-platform.netlify.app/
+
 **D-CoE, IISc Bengaluru** · dcoe@fsid-iisc.in · +91 7204830111
