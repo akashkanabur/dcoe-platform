@@ -39,9 +39,9 @@ export default function Courses() {
                 <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                   <div className="flex items-center gap-3">
                   </div>
-                  <Link href="/auth/signup" className="flex items-center gap-1 text-dcoe-green text-sm font-semibold hover:gap-2 transition-all duration-200">
+                  <a href="https://dcoeiisc.com/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-dcoe-green text-sm font-semibold hover:gap-2 transition-all duration-200">
                     Enroll <ArrowRight className="w-4 h-4" />
-                  </Link>
+                  </a>
                 </div>
               </motion.div>
             )

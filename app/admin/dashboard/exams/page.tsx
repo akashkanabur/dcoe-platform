@@ -31,6 +31,7 @@ export default function AdminExamManagerPage() {
   const [exams, setExams] = useState<Exam[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [moduleOptions, setModuleOptions] = useState<string[]>([])
 
   const [examForm, setExamForm] = useState({
@@ -192,6 +193,33 @@ export default function AdminExamManagerPage() {
     })
   }
 
+  const handleBulkUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !selectedExam) return
+    
+    setUploading(true)
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('testId', selectedExam.id)
+
+    try {
+      const res = await fetch('/api/questions/upload', {
+        method: 'POST',
+        body: formData,
+      })
+      const data = await parseJson(res)
+      if (!res.ok) throw new Error(data?.error || 'Failed to upload')
+      
+      toast.success(data.message || 'Questions uploaded successfully')
+      fetchExams()
+    } catch (err: any) {
+      toast.error(err.message)
+    } finally {
+      setUploading(false)
+      e.target.value = ''
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 p-8 space-y-6">
       <div>
@@ -284,6 +312,41 @@ export default function AdminExamManagerPage() {
         </div>
         <button type="submit" className="btn-primary" disabled={!selectedExam}>Add Question</button>
       </form>
+
+      <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4 relative overflow-hidden">
+        {selectedExam && <div className="absolute top-0 left-0 right-0 h-1.5 bg-dcoe-green" />}
+        <div className="flex items-center justify-between">
+          <h2 className="font-bold text-gray-900 text-sm">Bulk Upload Questions</h2>
+          {selectedExam && (
+            <div className="flex items-center gap-2 bg-dcoe-green/10 px-3 py-1 rounded-full border border-dcoe-green/20">
+              <span className="text-[10px] uppercase font-bold text-dcoe-green">Targeting Exam:</span>
+              <span className="text-xs font-semibold text-gray-700">{selectedExam.title}</span>
+            </div>
+          )}
+        </div>
+        {!selectedExam ? (
+          <div className="p-4 bg-amber-50 border border-amber-100 rounded-xl flex items-center gap-3">
+             <div className="text-amber-600 text-sm font-medium">Please click "Add Q" on an exam below to unlock bulk uploading.</div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="text-sm text-gray-500">
+              Upload an <strong>Excel (.xlsx)</strong>, <strong>Word (.docx)</strong>, or <strong>PDF (.pdf)</strong> file.<br />
+              <span className="text-xs text-amber-600 font-semibold bg-amber-50 px-2 py-1 rounded">
+                Note: Ensure PDFs & Docs use the Q: / A) B) C) D) / Ans: format. Excel files must use clear column headers.
+              </span>
+            </div>
+            <input 
+              type="file" 
+              accept=".xlsx,.xls,.csv,.pdf,.docx,.doc" 
+              className="input w-full md:w-1/2" 
+              disabled={uploading}
+              onChange={handleBulkUpload}
+            />
+            {uploading && <div className="text-sm animate-pulse text-dcoe-green font-bold">📄 Parsing document & importing... This may take a moment.</div>}
+          </div>
+        )}
+      </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-100">
